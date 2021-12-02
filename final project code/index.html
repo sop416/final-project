@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Perceptual Circle Scaling</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<style>
+
+body {
+   margin:0;
+   padding:0;
+   font-family:
+   sans-serif;
+   }
+
+ h1 {
+   position: absolute;
+   left: 50px;
+   top: 10px;
+   padding: 8px 2%;
+   margin: 0;
+   background: rgba(255,121,0,0.8);
+   box-shadow: 0 0 15px rgba(0,0,0,0.2);
+   border-radius: 3px;
+   color: whitesmoke;
+   font-size: 1.5em;
+   z-index: 800;
+   }
+
+ #map {
+   position:absolute;
+   top:0;
+   bottom:0;
+   width:100%;
+   height: 100%;
+  }
+
+
+  section {
+  			position: absolute;
+  			bottom: 0;
+  			left: 10px;
+  			width: 280px;
+  			margin: 20px auto;
+  			padding: 0 15px;
+  			background: rgba(256, 256, 256);
+  			border: 1px solid grey;
+  			border-radius: 3px;
+  			z-index: 800;
+  		}
+
+  		p {
+  			font-size: .9em;
+  			line-height: 1.5em;
+  		}
+
+  		a {
+  			color: #005daa;
+  			text-decoration: none;
+  		}
+
+  		a:hover {
+  			text-decoration: underline;
+  		}
+
+
+</style>
+
+</head>
+<body>
+    <div id='map'></div>
+    <h1>Road cost per capita by state</h1>
+
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+
+<section>
+		<h2>about this map</h2>
+
+		<p>This map displays information about highway funding by state. The graduated circles represent the amount of money it spends on each person in that state for the construction and maintenance of the roads. This is also known as the per capita cost. If you click on the circles the per capita cost will be displayed as well as the amount of money congress allocated to each state and the amount of money each state has received.
+. I got the data about the amount of money eac state got from <a href="https://www.constructiondive.com/news/a-look-at-the-actual-dollars-each-state-gets-from-the-highway-bill-its-l/586773/">the data</a> and my data about stae populations from <a href="https://www.infoplease.com/us/states/state-population-by-rank">the data</a> . I devided the amount allocated by the state populatin to get te per capita cost.</p>
+
+
+
+
+		<p>This really cool depiction of road cost was made by Stephen Poupart</p>
+
+	</section>
+
+
+
+<script>
+
+console.log("hello world!");
+
+
+
+
+var map = L.map('map', {
+        center: [39.5, -95.3],
+        zoom: 4
+    });
+
+    var Stamen_TonerLite = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}', {
+      	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      	ext: 'png'
+    }).addTo(map);
+
+
+
+states = L.geoJson.ajax("assets/road_costs.geojson",{
+    attribution: 'Data: US Census Bureau, Map: MYNAMEGOESHERE',
+    pointToLayer: function (feature, x){
+
+      return L.circleMarker(x, {
+        color: '#ff7900',
+        opacity: 1,
+        weight: 2,
+        fillColor: '#ff7900',
+        fillOpacity: .6,
+        radius: calcRadius(feature.properties.cost)
+
+      }).on({
+
+        mouseover: function(e){
+        this.setStyle({color: 'blue',fillColor: 'blue'});
+        },
+
+        mouseout: function(e){
+        this.setStyle({color:'#ff7900', fillColor: '#ff7900'});
+
+      } })
+      .bindPopup("State:"+feature.properties.name+
+        "<br>approved amount:"+feature.properties.approved+
+        "<br>relesed amount:"+feature.properties.released+
+          "<br>cost per capita:"+feature.properties.cost);
+    },});
+
+
+var minValue = 90.96;
+var minRadius = 8;
+
+function calcRadius(val) {
+        return 1.00 * Math.pow(val/minValue,.7) * minRadius;
+        }
+
+
+
+
+states.addTo(map);
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
